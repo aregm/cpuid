@@ -1,23 +1,27 @@
-// Package cpuid provides access to inforamtion available from 
+// Package cpuid provides access to inforamtion available with
 // CPUID instruction
 // All information is gathered during package initialization phase
 // so package's public interface doesn't call CPUID intstruction
 
 package cpuid
 
-// Vendor Indentification String like "GenuineIntel" or "AuthenticAMD"
+// VendorIndentificationString like "GenuineIntel" or "AuthenticAMD"
 var VendorIdentificatorString string
 
-// Processor Stepping ID
+// SteppingId is Processor Stepping ID as described in
+// Intel® 64 and IA-32 Architectures Software Developer’s Manual
 var SteppingId uint32
 
-// Version Information: Type
+// ProcessorType obtained from processor Version Information, according to
+// Intel® 64 and IA-32 Architectures Software Developer’s Manual
 var ProcessorType uint32
 
-// Version Information: Family
+// DisplayFamily is Family of processors obtained from processor Version Information, according to
+// Intel® 64 and IA-32 Architectures Software Developer’s Manual
 var DisplayFamily uint32
 
-// Version Information: Model
+// Display Model is Model of processor obtained from processor Version Information, according to
+// Intel® 64 and IA-32 Architectures Software Developer’s Manual
 var DisplayModel uint32
 
 // Cache line size in bytes
@@ -28,34 +32,55 @@ var MaxLogocalCPUId uint32
 
 // Initial APIC ID
 var InitialAPICId uint32
+
+// Cache descriptor's array
+// You can iterate like there:
+// 	for _, cacheDescription := range cpuid.CacheDescriptors {
+//		fmt.Printf("CacheDescriptor: %v\n", cacheDescription)
+//	}
+// See CacheDescriptor type for more information
 var CacheDescriptors []CacheDescriptor
+
+// Smallest monitor-line size in bytes (default is processor's monitor granularity)
 var MonLineSizeMin uint32
+
+// Largest monitor-line size in bytes (default is processor's monitor granularity)
 var MonLineSizeMax uint32
+
+// Enumeration of Monitor-Mwait extensions availability status
 var MonitorEMX bool
+
+// Supports treating interrupts as break-event for MWAIT flag
 var MonitorIBE bool
 
+// EnabledAVX flag allows to check if feature AVX is enabled by OS/BIOS 
 var EnabledAVX bool = false
+// EnabledAVX512 flag allows to check if features AVX512xxx are enabled by OS/BIOS
 var EnabledAVX512 bool = false
 
+
 type CacheDescriptor struct {
-	level      int
-	cacheType  int
-	cacheName  string
-	cacheSize  int // in KBytes (of page size for TLB)
-	ways       int // 0 undefined, 0xFF fully associate // TODO align with leaf4
-	lineSize   int // in Bytes
-	entries    int
-	partioning int
+	Level      int    // Cache level
+	CacheType  int    // Cache type
+	CacheName  string // Name
+	CacheSize  int    // in KBytes (of page size for TLB)
+	Ways       int    // Associativity, 0 undefined, 0xFF fully associate
+	LineSize   int    // Cachein Bytes
+	Entries    int    // number of entries for TLB
+	Partioning int    // partitioning
 }
 
+// HasFeature to check if features from FeatureNames map are available on the current processor
 func HasFeature(feature uint64) bool {
 	return (featureFlags & feature) != 0
 }
 
+// HasExtendedFeature to check if features from ExtendedFeatureNames map are available on the current processor
 func HasExtendedFeature(feature uint64) bool {
 	return (extendedFeatureFlags & feature) != 0
 }
 
+// HasExtraFeature to check if features from ExtraFeatureNames map are available on the current processor
 func HasExtraFeature(feature uint64) bool {
 	return (extraFeatureFlags & feature) != 0
 }
@@ -224,7 +249,6 @@ var brandId func() int
 var featureFlags uint64
 var extendedFeatureFlags uint64
 var extraFeatureFlags uint64
-
 
 func cpuid_low(arg1, arg2 uint32) (eax, ebx, ecx, edx uint32) // implemented in cpuidlow_amd64.s
 func xgetbv_low(arg1 uint32) (eax, edx uint32)                // implemented in cpuidlow_amd64.s
