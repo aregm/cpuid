@@ -141,6 +141,12 @@ You can iterate them like there
   > **IA64**         IA64 processor emulating x86 <br/>
   > **PBE**          Pending Break Enable (PBE# pin) wakeup support <br/>
 
+  Usage example:
+
+        if EnabledAVX && HasFeature(AVX) {
+            fmt.Printf("We can use AVX\n")
+        }
+
 * **func HasExtendedFeature(feature uint64) bool** to check for the following features:
   > **FSGSBASE**                Access to base of %fs and %gs<br/>
   > **IA32_TSC_ADJUST**         IA32_TSC_ADJUST MSR is supported if 1<br/>
