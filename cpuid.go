@@ -53,11 +53,11 @@ var MonitorEMX bool
 // Supports treating interrupts as break-event for MWAIT flag
 var MonitorIBE bool
 
-// EnabledAVX flag allows to check if feature AVX is enabled by OS/BIOS 
+// EnabledAVX flag allows to check if feature AVX is enabled by OS/BIOS
 var EnabledAVX bool = false
+
 // EnabledAVX512 flag allows to check if features AVX512xxx are enabled by OS/BIOS
 var EnabledAVX512 bool = false
-
 
 type CacheDescriptor struct {
 	Level      int    // Cache level
@@ -207,6 +207,7 @@ var ExtraFeatureNames = map[uint64]string{ // From leaf 8000 0001
 	TOPOEXT:      "TOPOEXT",
 	PERFCTR_CORE: "PERFCTR_CORE",
 	PERFCTR_NB:   "PERFCTR_NB",
+	SPM:          "SPM",
 	DBX:          "DBX",
 	PERFTSC:      "PERFTSC",
 	PCX_L2I:      "PCX_L2I",
@@ -457,7 +458,7 @@ const (
 	TOPOEXT
 	PERFCTR_CORE
 	PERFCTR_NB
-	_
+	SPM
 	DBX
 	PERFTSC
 	PCX_L2I
