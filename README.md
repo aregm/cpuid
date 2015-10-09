@@ -1,12 +1,12 @@
 # cpuid
 ### Intel CPUID library for Go Programming Language
 
-Package cpuid provides access to information available with 
-processor CPUID instruction. 
-Package gatheres all information during package initialization phase 
-so its public interface doesn't call CPUID intstruction.
-It allows to use this library for the optimization purposes as CPUID instruction
-can have some performance related side effects.
+The cpuid package provides convenient and fast access to information from 
+the x86 CPUID instruction. 
+The package gathers all information during package initialization phase 
+so its public interface will not need to execute the CPUID instruction at runtime.
+Frequent calls to the CPUID instruction can hurt performance, 
+so this package makes it easier to do CPU-specific optimizations.
 
 
 [![GoDoc][1]][2]
@@ -54,7 +54,7 @@ can have some performance related side effects.
     }
 
 ### API description
-Most of data available with simple variables:
+Most data is available with simple variables:
  
 * **SteppingId uint32** Processor Stepping ID
 * **ProcessorType uint32** Processor type
@@ -65,7 +65,7 @@ Most of data available with simple variables:
 * **InitialAPICId uint32** Initial APIC ID
 * **CacheDescriptors []CacheDescriptor** Cache descriptor's array
 
-You can iterate them like there
+You can iterate over them as follows:
      
         for _, cacheDescription := range cpuid.CacheDescriptors {
             fmt.Printf("CacheDescriptor: %v\n", cacheDescription)
