@@ -65,7 +65,7 @@ type CacheDescriptor struct {
 	CacheName  string // Name
 	CacheSize  int    // in KBytes (of page size for TLB)
 	Ways       int    // Associativity, 0 undefined, 0xFF fully associate
-	LineSize   int    // Cachein Bytes
+	LineSize   int    // Cache line size in bytes
 	Entries    int    // number of entries for TLB
 	Partioning int    // partitioning
 }
