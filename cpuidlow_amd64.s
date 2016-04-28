@@ -1,3 +1,5 @@
+#include "textflag.h"
+
 // func cpuid_low(arg1, arg2 uint32) (eax, ebx, ecx, edx uint32)
 TEXT ·cpuid_low(SB),NOSPLIT,$0-24
     MOVL    arg1+0(FP), AX
