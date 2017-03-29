@@ -1,3 +1,7 @@
+// Copyright 2015 Intel Corporation.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 // Package cpuid provides access to inforamtion available with
 // CPUID instruction
 // All information is gathered during package initialization phase
