@@ -20,11 +20,12 @@ func main() {
 	fmt.Printf("MaxLogocalCPUId:%d\n", cpuid.MaxLogocalCPUId)
 	fmt.Printf("InitialAPICId:  %d\n", cpuid.InitialAPICId)
 	fmt.Printf("Smallest monitor-line size in bytes:  %d\n", cpuid.MonLineSizeMin)
-	fmt.Printf("Largest monitor-line size in bytes:  %d\n", cpuid.MonLineSizeMax)
+	fmt.Printf("Largest monitor-line size in bytes:   %d\n", cpuid.MonLineSizeMax)
 	fmt.Printf("Monitor Interrupt break-event is supported:  %v\n", cpuid.MonitorIBE)
-	fmt.Printf("MONITOR/MWAIT extensions are supported:  %v\n", cpuid.MonitorEMX)
-	fmt.Printf("AVX state %v\n", cpuid.EnabledAVX)
-	fmt.Printf("AVX-512 state %v\n", cpuid.EnabledAVX512)
+	fmt.Printf("MONITOR/MWAIT extensions are supported:      %v\n", cpuid.MonitorEMX)
+	fmt.Printf("AVX state:     %v\n", cpuid.EnabledAVX)
+	fmt.Printf("AVX-512 state: %v\n", cpuid.EnabledAVX512)
+	fmt.Printf("Interrupt thresholds in digital thermal sensor: %v\n", cpuid.ThermalSensorInterruptThresholds)
 
 	fmt.Printf("Features: ")
 	for i := uint64(0); i < 64; i++ {
