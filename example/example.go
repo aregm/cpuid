@@ -49,6 +49,16 @@ func main() {
 	}
 	fmt.Printf("\n")
 
+	fmt.Printf("ThermalAndPowerFeatures: ")
+	for i := uint32(0); i < 64; i++ {
+		if cpuid.HasThermalAndPowerFeature(1 << i) {
+			if name, found := cpuid.ThermalAndPowerFeatureNames[1<<i]; found {
+				fmt.Printf("%s ", name)
+			}
+		}
+	}
+	fmt.Printf("\n")
+
 	for _, cacheDescription := range cpuid.CacheDescriptors {
 		fmt.Printf("CacheDescriptor: %v\n", cacheDescription)
 	}

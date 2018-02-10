@@ -74,6 +74,9 @@ type CacheDescriptor struct {
 	Partioning int    // partitioning
 }
 
+// ThermalSensorInterruptThresholds is the number of interrupt thresholds in digital thermal sensor.
+var ThermalSensorInterruptThresholds uint32
+
 // HasFeature to check if features from FeatureNames map are available on the current processor
 func HasFeature(feature uint64) bool {
 	return (featureFlags & feature) != 0
@@ -87,6 +90,11 @@ func HasExtendedFeature(feature uint64) bool {
 // HasExtraFeature to check if features from ExtraFeatureNames map are available on the current processor
 func HasExtraFeature(feature uint64) bool {
 	return (extraFeatureFlags & feature) != 0
+}
+
+// HasThermalAndPowerFeature to check if features from ThermalAndPowerFeatureNames map are available on the current processor
+func HasThermalAndPowerFeature(feature uint32) bool {
+	return (thermalAndPowerFeatureFlags & feature) != 0
 }
 
 var FeatureNames = map[uint64]string{
@@ -151,6 +159,24 @@ var FeatureNames = map[uint64]string{
 	TM:           "TM",
 	IA64:         "IA64",
 	PBE:          "PBE",
+}
+
+var ThermalAndPowerFeatureNames = map[uint32]string{ // From leaf06
+	ARAT:                      "ARAT",
+	PLN:                       "PLN",
+	ECMD:                      "ECMD",
+	PTM:                       "PTM",
+	HDC:                       "HDC",
+	HCFC:                      "HCFC",
+	HWP:                       "HWP",
+	HWP_NOTIF:                 "HWP_NOTIF",
+	HWP_ACTIVITY_WINDOW:       "HWP_ACTIVITY_WINDOW",
+	HWP_ENERGY_PERFORMANCE:    "HWP_ENERGY_PERFORMANCE",
+	HWP_PACKAGE_LEVEL_REQUEST: "HWP_PACKAGE_LEVEL_REQUEST",
+	PERFORMANCE_ENERGY_BIAS:   "PERFORMANCE_ENERGY_BIAS",
+	TEMPERATURE_SENSOR:        "TEMPERATURE_SENSOR",
+	TURBO_BOOST:               "TURBO_BOOST",
+	TURBO_BOOST_MAX:           "TURBO_BOOST_MAX",
 }
 
 var ExtendedFeatureNames = map[uint64]string{ // From leaf07
@@ -245,6 +271,27 @@ var ExtraFeatureNames = map[uint64]string{ // From leaf 8000 0001
 	_3DNOW:       "3DNOW",
 }
 
+var brandStrings = map[string]int{
+	"AMDisbetter!": AMD,
+	"AuthenticAMD": AMD,
+	"CentaurHauls": CENTAUR,
+	"CyrixInstead": CYRIX,
+	"GenuineIntel": INTEL,
+	"TransmetaCPU": TRANSMETA,
+	"GenuineTMx86": TRANSMETA,
+	"Geode by NSC": NATIONALSEMICONDUCTOR,
+	"NexGenDriven": NEXGEN,
+	"RiseRiseRise": RISE,
+	"SiS SiS SiS ": SIS,
+	"UMC UMC UMC ": UMC,
+	"VIA VIA VIA ": VIA,
+	"Vortex86 SoC": VORTEX,
+	"KVMKVMKVM":    KVM,
+	"Microsoft Hv": HYPERV,
+	"VMwareVMware": VMWARE,
+	"XenVMMXenVMM": XEN,
+}
+
 var maxInputValue uint32
 var maxExtendedInputValue uint32
 var extendedModelId uint32
@@ -252,6 +299,7 @@ var extendedFamilyId uint32
 var brandIndex uint32
 var brandId func() int
 var featureFlags uint64
+var thermalAndPowerFeatureFlags uint32
 var extendedFeatureFlags uint64
 var extraFeatureFlags uint64
 
@@ -504,6 +552,29 @@ const (
 	_3DNOW
 )
 
+// Thermal and Power Management features
+const (
+	TEMPERATURE_SENSOR        = uint32(1) << iota // Digital temperature sensor
+	TURBO_BOOST                                   // Intel Turbo Boost Technology available
+	ARAT                                          // APIC-Timer-always-running feature is supported if set.
+	_                                             // Reserved
+	PLN                                           // Power limit notification controls
+	ECMD                                          // Clock modulation duty cycle extension
+	PTM                                           // Package thermal management
+	HWP                                           // HWP base registers (IA32_PM_ENABLE[bit 0], IA32_HWP_CAPABILITIES, IA32_HWP_REQUEST, IA32_HWP_STATUS)
+	HWP_NOTIF                                     // IA32_HWP_INTERRUPT MSR
+	HWP_ACTIVITY_WINDOW                           // IA32_HWP_REQUEST[bits 41:32]
+	HWP_ENERGY_PERFORMANCE                        // IA32_HWP_REQUEST[bits 31:24]
+	HWP_PACKAGE_LEVEL_REQUEST                     // IA32_HWP_REQUEST_PKG MSR
+	_                                             // Reserved
+	HDC                                           // HDC base registers IA32_PKG_HDC_CTL, IA32_PM_CTL1, IA32_THREAD_STALL MSRs
+	TURBO_BOOST_MAX                               // Intel® Turbo Boost Max Technology
+	HCFC                                          // Hardware Coordination Feedback Capability
+	_
+	_
+	PERFORMANCE_ENERGY_BIAS // Processor supports performance-energy bias preference
+)
+
 const (
 	NULL = iota
 	DATA_CACHE
@@ -684,8 +755,14 @@ func leaf5() {
 }
 
 func leaf6() {
-	// TODO Returns Thermal and Power Management Features for Intel
+	// Thermal and Power Management Features for Intel
+	if maxInputValue < 6 {
+		return
+	}
 
+	eax, ebx, ecx, _ := cpuid_low(6, 0)
+	thermalAndPowerFeatureFlags = eax | (ecx << 15)
+	ThermalSensorInterruptThresholds = ebx & 7
 }
 
 func leaf7() {
