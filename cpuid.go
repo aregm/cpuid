@@ -297,7 +297,7 @@ var maxExtendedInputValue uint32
 var extendedModelId uint32
 var extendedFamilyId uint32
 var brandIndex uint32
-var brandId func() int
+var brandId int
 var featureFlags uint64
 var thermalAndPowerFeatureFlags uint32
 var extendedFeatureFlags uint64
@@ -328,31 +328,6 @@ const (
 	VMWARE
 	XEN
 )
-
-func determineBrand(brandName string) func() int {
-	var brandStrings = map[string]int{
-		"AMDisbetter!": AMD,
-		"AuthenticAMD": AMD,
-		"CentaurHauls": CENTAUR,
-		"CyrixInstead": CYRIX,
-		"GenuineIntel": INTEL,
-		"TransmetaCPU": TRANSMETA,
-		"GenuineTMx86": TRANSMETA,
-		"Geode by NSC": NATIONALSEMICONDUCTOR,
-		"NexGenDriven": NEXGEN,
-		"RiseRiseRise": RISE,
-		"SiS SiS SiS ": SIS,
-		"UMC UMC UMC ": UMC,
-		"VIA VIA VIA ": VIA,
-		"Vortex86 SoC": VORTEX,
-		"KVMKVMKVM":    KVM,
-		"Microsoft Hv": HYPERV,
-		"VMwareVMware": VMWARE,
-		"XenVMMXenVMM": XEN}
-	return func() int {
-		return brandStrings[brandName]
-	}
-}
 
 func detectFeatures() {
 	leaf0()
@@ -610,7 +585,8 @@ func leaf0() {
 	buf = int32ToBytes(ecx)
 	copy(vendorStringBytes[8:], buf[:])
 	VendorIdentificatorString = string(vendorStringBytes[:])
-	brandId = determineBrand(VendorIdentificatorString)
+
+	brandId = brandStrings[VendorIdentificatorString]
 }
 
 func leaf1() {
@@ -651,7 +627,7 @@ func leaf1() {
 
 func leaf2() {
 
-	if brandId() != INTEL {
+	if brandId != INTEL {
 		return
 	}
 	if maxInputValue < 2 {
@@ -684,7 +660,7 @@ func leaf2() {
 }
 
 func leaf3() {
-	if brandId() != INTEL {
+	if brandId != INTEL {
 		return
 	}
 
@@ -696,7 +672,7 @@ func leaf3() {
 
 func leaf4() {
 
-	if brandId() != INTEL {
+	if brandId != INTEL {
 		return
 	}
 
@@ -802,7 +778,7 @@ func leaf0x80000005() {
 		return
 	}
 
-	if brandId() != AMD {
+	if brandId != AMD {
 		return
 	}
 
@@ -916,10 +892,9 @@ func leaf0x80000006() {
 		0x0F: 0xFF, // - Fully associative
 	}
 
-	//	eax, ebx, ecx, edx := cpuid_low(0x80000006, 0)
 	eax, ebx, ecx, edx := cpuid_low(0x80000006, 0)
 
-	if brandId() == INTEL {
+	if brandId == INTEL {
 
 		CacheLineSize := (ecx >> 0) & 0xFF
 		L2Associativity := uint((ecx >> 12) & 0xF)
@@ -936,7 +911,7 @@ func leaf0x80000006() {
 			})
 	}
 
-	if brandId() == AMD {
+	if brandId == AMD {
 
 		L2DTlb2and4MAssoc := uint((eax >> 28) & 0xF)
 		L2DTlb2and4MSize := (eax >> 16) & 0xFFF
