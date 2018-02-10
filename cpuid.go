@@ -577,15 +577,8 @@ func leaf0() {
 	eax, ebx, ecx, edx := cpuid_low(0, 0)
 
 	maxInputValue = eax
-	var vendorStringBytes [12]byte
-	buf := int32ToBytes(ebx)
-	copy(vendorStringBytes[:], buf[:])
-	buf = int32ToBytes(edx)
-	copy(vendorStringBytes[4:], buf[:])
-	buf = int32ToBytes(ecx)
-	copy(vendorStringBytes[8:], buf[:])
-	VendorIdentificatorString = string(vendorStringBytes[:])
 
+	VendorIdentificatorString = string(int32sToBytes(ebx, edx, ecx))
 	brandId = brandStrings[VendorIdentificatorString]
 }
 
@@ -634,17 +627,7 @@ func leaf2() {
 		return
 	}
 
-	eax, ebx, ecx, edx := cpuid_low(2, 0)
-
-	var bytes [16]byte
-	buf := int32ToBytes(eax)
-	copy(bytes[:], buf[:])
-	buf = int32ToBytes(ebx)
-	copy(bytes[4:], buf[:])
-	buf = int32ToBytes(ecx)
-	copy(bytes[8:], buf[:])
-	buf = int32ToBytes(edx)
-	copy(bytes[12:], buf[:])
+	bytes := int32sToBytes(cpuid_low(2, 0))
 
 	for i := 0; i < len(bytes); i++ {
 		if (i%4 == 0) && (bytes[i+3]&(1<<7) != 0) {
@@ -1118,11 +1101,16 @@ var leaf02Descriptors = map[int16]CacheDescriptor{
 		-1, -1, -1, -1, 0},
 }
 
-func int32ToBytes(arg uint32) [4]byte {
-	var buffer [4]byte
-	buffer[3] = byte((arg >> 24) & 0xFF)
-	buffer[2] = byte((arg >> 16) & 0xFF)
-	buffer[1] = byte((arg >> 8) & 0xFF)
-	buffer[0] = byte((arg) & 0xFF)
-	return buffer
+func int32sToBytes(args ...uint32) []byte {
+	var result []byte
+
+	for _, arg := range args {
+		result = append(result,
+			byte((arg)&0xFF),
+			byte((arg>>8)&0xFF),
+			byte((arg>>16)&0xFF),
+			byte((arg>>24)&0xFF))
+	}
+
+	return result
 }
