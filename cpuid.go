@@ -12,6 +12,9 @@ package cpuid
 // VendorIndentificationString like "GenuineIntel" or "AuthenticAMD"
 var VendorIdentificatorString string
 
+// ProcessorBrandString like "Intel(R) Core(TM) i7-4770HQ CPU @ 2.20GHz"
+var ProcessorBrandString string
+
 // SteppingId is Processor Stepping ID as described in
 // Intel® 64 and IA-32 Architectures Software Developer’s Manual
 var SteppingId uint32
@@ -340,6 +343,7 @@ func detectFeatures() {
 	leaf7()
 	leaf0x80000000()
 	leaf0x80000001()
+	leaf0x80000004()
 	leaf0x80000005()
 	leaf0x80000006()
 
@@ -742,21 +746,19 @@ func leaf0x80000001() {
 	extraFeatureFlags = (uint64(edx) << 32) | uint64(ecx)
 }
 
-func leaf0x80000002() {
-	// Processor Brand String
-}
-
-func leaf0x80000003() {
-	// Processor Brand String continued
-}
-
+// leaf0x80000004 looks at the Processor Brand String in leaves 0x80000002 through 0x80000004
 func leaf0x80000004() {
-	// Processor Brand String continued
+	if maxExtendedInputValue < 0x80000004 {
+		return
+	}
+
+	ProcessorBrandString += string(int32sToBytes(cpuid_low(0x80000002, 0)))
+	ProcessorBrandString += string(int32sToBytes(cpuid_low(0x80000003, 0)))
+	ProcessorBrandString += string(int32sToBytes(cpuid_low(0x80000004, 0)))
 }
 
 func leaf0x80000005() {
 	// AMD L1 Cache and TLB Information
-
 	if maxExtendedInputValue < 0x80000005 {
 		return
 	}

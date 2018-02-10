@@ -5,12 +5,13 @@
 package main
 
 import (
-	"github.com/intel-go/cpuid"
 	"fmt"
+	"github.com/intel-go/cpuid"
 )
 
 func main() {
-	fmt.Printf("VendorString:   %s\n", cpuid.VendorIdentificatorString)
+	fmt.Printf("VendorString:           %s\n", cpuid.VendorIdentificatorString)
+	fmt.Printf("ProcessorBrandString:   %s\n", cpuid.ProcessorBrandString)
 	fmt.Printf("SteppingId:     %d\n", cpuid.SteppingId)
 	fmt.Printf("ProcessorType:  %d\n", cpuid.ProcessorType)
 	fmt.Printf("DisplayFamily:  %d\n", cpuid.DisplayFamily)
