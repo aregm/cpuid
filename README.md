@@ -144,8 +144,8 @@ for _, cacheDescription := range cpuid.CacheDescriptors {
   > **TM**           Thermal monitor automatically limits temperature <br/>
   > **IA64**         IA64 processor emulating x86 <br/>
   > **PBE**          Pending Break Enable (PBE# pin) wakeup support <br/>
-  
-  Usage example:
+
+Usage example:
 
 ```go
 if EnabledAVX && HasFeature(AVX) {
