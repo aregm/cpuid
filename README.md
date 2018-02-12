@@ -8,50 +8,52 @@ so its public interface will not need to execute the CPUID instruction at runtim
 Frequent calls to the CPUID instruction can hurt performance, 
 so this package makes it easier to do CPU-specific optimizations.
 
-
-[![GoDoc][1]][2]
-[1]: https://godoc.org/github.com/intel-go/cpuid?status.svg
-[2]: https://godoc.org/github.com/intel-go/cpuid
+[![GoDoc](https://godoc.org/github.com/intel-go/cpuid?status.svg)](https://godoc.org/github.com/intel-go/cpuid)
 
 ### You can get it with
 
-    go get github.com/intel-go/cpuid
+```shell
+go get github.com/intel-go/cpuid
+```
 
 ### Example:
 
-    package main
-    import (
-	     "github.com/intel-go/cpuid"
-	     "fmt"
-    )
-    
-    func main() {
-      	fmt.Printf("VendorString:   %s\n", cpuid.VendorIdentificatorString)
-      
-      	fmt.Printf("Features: ")
-      	for i := uint64(0); i < 64; i++ {
-      		if cpuid.HasFeature(1 << i) {
-      			fmt.Printf("%s ", cpuid.FeatureNames[1<<i])
-      		}
-      	}
-      	fmt.Printf("\n")
-      
-      	fmt.Printf("ExtendedFeatures: ")
-      	for i := uint64(0); i < 64; i++ {
-      		if cpuid.HasExtendedFeature(1 << i) {
-      			fmt.Printf("%s ", cpuid.ExtendedFeatureNames[1<<i])
-      		}
-      	}
-      	fmt.Printf("\n")
-      
-      	fmt.Printf("ExtraFeatures: ")
-      	for i := uint64(0); i < 64; i++ {
-      		if cpuid.HasExtraFeature(1 << i) {
-      			fmt.Printf("%s ", cpuid.ExtraFeatureNames[1<<i])
-      		}
-      	}
-      	fmt.Printf("\n")
+```go
+package main
+
+import (
+    "github.com/intel-go/cpuid"
+    "fmt"
+)
+
+func main() {
+    fmt.Printf("VendorString:   %s\n", cpuid.VendorIdentificatorString)
+
+    fmt.Printf("Features: ")
+    for i := uint64(0); i < 64; i++ {
+        if cpuid.HasFeature(1 << i) {
+            fmt.Printf("%s ", cpuid.FeatureNames[1<<i])
+        }
     }
+    fmt.Printf("\n")
+
+    fmt.Printf("ExtendedFeatures: ")
+    for i := uint64(0); i < 64; i++ {
+        if cpuid.HasExtendedFeature(1 << i) {
+            fmt.Printf("%s ", cpuid.ExtendedFeatureNames[1<<i])
+        }
+    }
+    fmt.Printf("\n")
+
+    fmt.Printf("ExtraFeatures: ")
+    for i := uint64(0); i < 64; i++ {
+        if cpuid.HasExtraFeature(1 << i) {
+            fmt.Printf("%s ", cpuid.ExtraFeatureNames[1<<i])
+        }
+    }
+    fmt.Printf("\n")
+}
+```
 
 ### API description
 Most data is available with simple variables:
@@ -67,9 +69,11 @@ Most data is available with simple variables:
 
 You can iterate over them as follows:
      
-        for _, cacheDescription := range cpuid.CacheDescriptors {
-            fmt.Printf("CacheDescriptor: %v\n", cacheDescription)
-        }
+```go
+for _, cacheDescription := range cpuid.CacheDescriptors {
+    fmt.Printf("CacheDescriptor: %v\n", cacheDescription)
+}
+```
 
 * **MonLineSizeMin uint32** Smallest monitor-line size in bytes (default is processor's monitor granularity) 
 * **MonLineSizeMax uint32** Largest monitor-line size in bytes (default is processor's monitor granularity)
@@ -141,11 +145,13 @@ You can iterate over them as follows:
   > **IA64**         IA64 processor emulating x86 <br/>
   > **PBE**          Pending Break Enable (PBE# pin) wakeup support <br/>
 
-  Usage example:
+Usage example:
 
-        if EnabledAVX && HasFeature(AVX) {
-            fmt.Printf("We can use AVX\n")
-        }
+```go
+if EnabledAVX && HasFeature(AVX) {
+    fmt.Printf("We can use AVX\n")
+}
+```
 
 * **func HasExtendedFeature(feature uint64) bool** to check for the following features:
   > **FSGSBASE**                Access to base of %fs and %gs<br/>
