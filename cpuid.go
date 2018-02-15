@@ -533,6 +533,7 @@ const (
 
 // Thermal and Power Management features
 const (
+	// EAX bits 0-15
 	TEMPERATURE_SENSOR        = uint32(1) << iota // Digital temperature sensor
 	TURBO_BOOST                                   // Intel Turbo Boost Technology available
 	ARAT                                          // APIC-Timer-always-running feature is supported if set.
@@ -545,10 +546,13 @@ const (
 	HWP_ACTIVITY_WINDOW                           // IA32_HWP_REQUEST[bits 41:32]
 	HWP_ENERGY_PERFORMANCE                        // IA32_HWP_REQUEST[bits 31:24]
 	HWP_PACKAGE_LEVEL_REQUEST                     // IA32_HWP_REQUEST_PKG MSR
-	_                                             // Reserved
+	_                                             // Reserved (eax bit 12)
 	HDC                                           // HDC base registers IA32_PKG_HDC_CTL, IA32_PM_CTL1, IA32_THREAD_STALL MSRs
 	TURBO_BOOST_MAX                               // Intel® Turbo Boost Max Technology
-	HCFC                                          // Hardware Coordination Feedback Capability
+	_                                             // Reserved (eax bit 15)
+
+	// ECX bits 0-15
+	HCFC // Hardware Coordination Feedback Capability
 	_
 	_
 	PERFORMANCE_ENERGY_BIAS // Processor supports performance-energy bias preference
@@ -724,7 +728,7 @@ func leaf6() {
 	}
 
 	eax, ebx, ecx, _ := cpuid_low(6, 0)
-	thermalAndPowerFeatureFlags = eax | (ecx << 15)
+	thermalAndPowerFeatureFlags = (eax & 0xFFFF) | (ecx << 16)
 	ThermalSensorInterruptThresholds = ebx & 7
 }
 
