@@ -12,6 +12,9 @@ package cpuid
 // VendorIndentificationString like "GenuineIntel" or "AuthenticAMD"
 var VendorIdentificatorString string
 
+// ProcessorBrandString like "Intel(R) Core(TM) i7-4770HQ CPU @ 2.20GHz"
+var ProcessorBrandString string
+
 // SteppingId is Processor Stepping ID as described in
 // Intel® 64 and IA-32 Architectures Software Developer’s Manual
 var SteppingId uint32
@@ -74,6 +77,9 @@ type CacheDescriptor struct {
 	Partioning int    // partitioning
 }
 
+// ThermalSensorInterruptThresholds is the number of interrupt thresholds in digital thermal sensor.
+var ThermalSensorInterruptThresholds uint32
+
 // HasFeature to check if features from FeatureNames map are available on the current processor
 func HasFeature(feature uint64) bool {
 	return (featureFlags & feature) != 0
@@ -87,6 +93,11 @@ func HasExtendedFeature(feature uint64) bool {
 // HasExtraFeature to check if features from ExtraFeatureNames map are available on the current processor
 func HasExtraFeature(feature uint64) bool {
 	return (extraFeatureFlags & feature) != 0
+}
+
+// HasThermalAndPowerFeature to check if features from ThermalAndPowerFeatureNames map are available on the current processor
+func HasThermalAndPowerFeature(feature uint32) bool {
+	return (thermalAndPowerFeatureFlags & feature) != 0
 }
 
 var FeatureNames = map[uint64]string{
@@ -151,6 +162,24 @@ var FeatureNames = map[uint64]string{
 	TM:           "TM",
 	IA64:         "IA64",
 	PBE:          "PBE",
+}
+
+var ThermalAndPowerFeatureNames = map[uint32]string{ // From leaf06
+	ARAT:                      "ARAT",
+	PLN:                       "PLN",
+	ECMD:                      "ECMD",
+	PTM:                       "PTM",
+	HDC:                       "HDC",
+	HCFC:                      "HCFC",
+	HWP:                       "HWP",
+	HWP_NOTIF:                 "HWP_NOTIF",
+	HWP_ACTIVITY_WINDOW:       "HWP_ACTIVITY_WINDOW",
+	HWP_ENERGY_PERFORMANCE:    "HWP_ENERGY_PERFORMANCE",
+	HWP_PACKAGE_LEVEL_REQUEST: "HWP_PACKAGE_LEVEL_REQUEST",
+	PERFORMANCE_ENERGY_BIAS:   "PERFORMANCE_ENERGY_BIAS",
+	TEMPERATURE_SENSOR:        "TEMPERATURE_SENSOR",
+	TURBO_BOOST:               "TURBO_BOOST",
+	TURBO_BOOST_MAX:           "TURBO_BOOST_MAX",
 }
 
 var ExtendedFeatureNames = map[uint64]string{ // From leaf07
@@ -245,13 +274,35 @@ var ExtraFeatureNames = map[uint64]string{ // From leaf 8000 0001
 	_3DNOW:       "3DNOW",
 }
 
+var brandStrings = map[string]int{
+	"AMDisbetter!": AMD,
+	"AuthenticAMD": AMD,
+	"CentaurHauls": CENTAUR,
+	"CyrixInstead": CYRIX,
+	"GenuineIntel": INTEL,
+	"TransmetaCPU": TRANSMETA,
+	"GenuineTMx86": TRANSMETA,
+	"Geode by NSC": NATIONALSEMICONDUCTOR,
+	"NexGenDriven": NEXGEN,
+	"RiseRiseRise": RISE,
+	"SiS SiS SiS ": SIS,
+	"UMC UMC UMC ": UMC,
+	"VIA VIA VIA ": VIA,
+	"Vortex86 SoC": VORTEX,
+	"KVMKVMKVM":    KVM,
+	"Microsoft Hv": HYPERV,
+	"VMwareVMware": VMWARE,
+	"XenVMMXenVMM": XEN,
+}
+
 var maxInputValue uint32
 var maxExtendedInputValue uint32
 var extendedModelId uint32
 var extendedFamilyId uint32
 var brandIndex uint32
-var brandId func() int
+var brandId int
 var featureFlags uint64
+var thermalAndPowerFeatureFlags uint32
 var extendedFeatureFlags uint64
 var extraFeatureFlags uint64
 
@@ -281,31 +332,6 @@ const (
 	XEN
 )
 
-func determineBrand(brandName string) func() int {
-	var brandStrings = map[string]int{
-		"AMDisbetter!": AMD,
-		"AuthenticAMD": AMD,
-		"CentaurHauls": CENTAUR,
-		"CyrixInstead": CYRIX,
-		"GenuineIntel": INTEL,
-		"TransmetaCPU": TRANSMETA,
-		"GenuineTMx86": TRANSMETA,
-		"Geode by NSC": NATIONALSEMICONDUCTOR,
-		"NexGenDriven": NEXGEN,
-		"RiseRiseRise": RISE,
-		"SiS SiS SiS ": SIS,
-		"UMC UMC UMC ": UMC,
-		"VIA VIA VIA ": VIA,
-		"Vortex86 SoC": VORTEX,
-		"KVMKVMKVM":    KVM,
-		"Microsoft Hv": HYPERV,
-		"VMwareVMware": VMWARE,
-		"XenVMMXenVMM": XEN}
-	return func() int {
-		return brandStrings[brandName]
-	}
-}
-
 func detectFeatures() {
 	leaf0()
 	leaf1()
@@ -317,6 +343,7 @@ func detectFeatures() {
 	leaf7()
 	leaf0x80000000()
 	leaf0x80000001()
+	leaf0x80000004()
 	leaf0x80000005()
 	leaf0x80000006()
 
@@ -504,6 +531,33 @@ const (
 	_3DNOW
 )
 
+// Thermal and Power Management features
+const (
+	// EAX bits 0-15
+	TEMPERATURE_SENSOR        = uint32(1) << iota // Digital temperature sensor
+	TURBO_BOOST                                   // Intel Turbo Boost Technology available
+	ARAT                                          // APIC-Timer-always-running feature is supported if set.
+	_                                             // Reserved
+	PLN                                           // Power limit notification controls
+	ECMD                                          // Clock modulation duty cycle extension
+	PTM                                           // Package thermal management
+	HWP                                           // HWP base registers (IA32_PM_ENABLE[bit 0], IA32_HWP_CAPABILITIES, IA32_HWP_REQUEST, IA32_HWP_STATUS)
+	HWP_NOTIF                                     // IA32_HWP_INTERRUPT MSR
+	HWP_ACTIVITY_WINDOW                           // IA32_HWP_REQUEST[bits 41:32]
+	HWP_ENERGY_PERFORMANCE                        // IA32_HWP_REQUEST[bits 31:24]
+	HWP_PACKAGE_LEVEL_REQUEST                     // IA32_HWP_REQUEST_PKG MSR
+	_                                             // Reserved (eax bit 12)
+	HDC                                           // HDC base registers IA32_PKG_HDC_CTL, IA32_PM_CTL1, IA32_THREAD_STALL MSRs
+	TURBO_BOOST_MAX                               // Intel® Turbo Boost Max Technology
+	_                                             // Reserved (eax bit 15)
+
+	// ECX bits 0-15
+	HCFC // Hardware Coordination Feedback Capability
+	_
+	_
+	PERFORMANCE_ENERGY_BIAS // Processor supports performance-energy bias preference
+)
+
 const (
 	NULL = iota
 	DATA_CACHE
@@ -531,15 +585,9 @@ func leaf0() {
 	eax, ebx, ecx, edx := cpuid_low(0, 0)
 
 	maxInputValue = eax
-	var vendorStringBytes [12]byte
-	buf := int32ToBytes(ebx)
-	copy(vendorStringBytes[:], buf[:])
-	buf = int32ToBytes(edx)
-	copy(vendorStringBytes[4:], buf[:])
-	buf = int32ToBytes(ecx)
-	copy(vendorStringBytes[8:], buf[:])
-	VendorIdentificatorString = string(vendorStringBytes[:])
-	brandId = determineBrand(VendorIdentificatorString)
+
+	VendorIdentificatorString = string(int32sToBytes(ebx, edx, ecx))
+	brandId = brandStrings[VendorIdentificatorString]
 }
 
 func leaf1() {
@@ -580,24 +628,14 @@ func leaf1() {
 
 func leaf2() {
 
-	if brandId() != INTEL {
+	if brandId != INTEL {
 		return
 	}
 	if maxInputValue < 2 {
 		return
 	}
 
-	eax, ebx, ecx, edx := cpuid_low(2, 0)
-
-	var bytes [16]byte
-	buf := int32ToBytes(eax)
-	copy(bytes[:], buf[:])
-	buf = int32ToBytes(ebx)
-	copy(bytes[4:], buf[:])
-	buf = int32ToBytes(ecx)
-	copy(bytes[8:], buf[:])
-	buf = int32ToBytes(edx)
-	copy(bytes[12:], buf[:])
+	bytes := int32sToBytes(cpuid_low(2, 0))
 
 	for i := 0; i < len(bytes); i++ {
 		if (i%4 == 0) && (bytes[i+3]&(1<<7) != 0) {
@@ -613,7 +651,7 @@ func leaf2() {
 }
 
 func leaf3() {
-	if brandId() != INTEL {
+	if brandId != INTEL {
 		return
 	}
 
@@ -625,7 +663,7 @@ func leaf3() {
 
 func leaf4() {
 
-	if brandId() != INTEL {
+	if brandId != INTEL {
 		return
 	}
 
@@ -684,8 +722,14 @@ func leaf5() {
 }
 
 func leaf6() {
-	// TODO Returns Thermal and Power Management Features for Intel
+	// Thermal and Power Management Features for Intel
+	if maxInputValue < 6 {
+		return
+	}
 
+	eax, ebx, ecx, _ := cpuid_low(6, 0)
+	thermalAndPowerFeatureFlags = (eax & 0xFFFF) | (ecx << 16)
+	ThermalSensorInterruptThresholds = ebx & 7
 }
 
 func leaf7() {
@@ -706,26 +750,24 @@ func leaf0x80000001() {
 	extraFeatureFlags = (uint64(edx) << 32) | uint64(ecx)
 }
 
-func leaf0x80000002() {
-	// Processor Brand String
-}
-
-func leaf0x80000003() {
-	// Processor Brand String continued
-}
-
+// leaf0x80000004 looks at the Processor Brand String in leaves 0x80000002 through 0x80000004
 func leaf0x80000004() {
-	// Processor Brand String continued
+	if maxExtendedInputValue < 0x80000004 {
+		return
+	}
+
+	ProcessorBrandString += string(int32sToBytes(cpuid_low(0x80000002, 0)))
+	ProcessorBrandString += string(int32sToBytes(cpuid_low(0x80000003, 0)))
+	ProcessorBrandString += string(int32sToBytes(cpuid_low(0x80000004, 0)))
 }
 
 func leaf0x80000005() {
 	// AMD L1 Cache and TLB Information
-
 	if maxExtendedInputValue < 0x80000005 {
 		return
 	}
 
-	if brandId() != AMD {
+	if brandId != AMD {
 		return
 	}
 
@@ -839,10 +881,9 @@ func leaf0x80000006() {
 		0x0F: 0xFF, // - Fully associative
 	}
 
-	//	eax, ebx, ecx, edx := cpuid_low(0x80000006, 0)
 	eax, ebx, ecx, edx := cpuid_low(0x80000006, 0)
 
-	if brandId() == INTEL {
+	if brandId == INTEL {
 
 		CacheLineSize := (ecx >> 0) & 0xFF
 		L2Associativity := uint((ecx >> 12) & 0xF)
@@ -859,7 +900,7 @@ func leaf0x80000006() {
 			})
 	}
 
-	if brandId() == AMD {
+	if brandId == AMD {
 
 		L2DTlb2and4MAssoc := uint((eax >> 28) & 0xF)
 		L2DTlb2and4MSize := (eax >> 16) & 0xFFF
@@ -1066,11 +1107,16 @@ var leaf02Descriptors = map[int16]CacheDescriptor{
 		-1, -1, -1, -1, 0},
 }
 
-func int32ToBytes(arg uint32) [4]byte {
-	var buffer [4]byte
-	buffer[3] = byte((arg >> 24) & 0xFF)
-	buffer[2] = byte((arg >> 16) & 0xFF)
-	buffer[1] = byte((arg >> 8) & 0xFF)
-	buffer[0] = byte((arg) & 0xFF)
-	return buffer
+func int32sToBytes(args ...uint32) []byte {
+	var result []byte
+
+	for _, arg := range args {
+		result = append(result,
+			byte((arg)&0xFF),
+			byte((arg>>8)&0xFF),
+			byte((arg>>16)&0xFF),
+			byte((arg>>24)&0xFF))
+	}
+
+	return result
 }

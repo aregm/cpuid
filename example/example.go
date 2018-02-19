@@ -5,12 +5,13 @@
 package main
 
 import (
-	"github.com/intel-go/cpuid"
 	"fmt"
+	"github.com/intel-go/cpuid"
 )
 
 func main() {
-	fmt.Printf("VendorString:   %s\n", cpuid.VendorIdentificatorString)
+	fmt.Printf("VendorString:           %s\n", cpuid.VendorIdentificatorString)
+	fmt.Printf("ProcessorBrandString:   %s\n", cpuid.ProcessorBrandString)
 	fmt.Printf("SteppingId:     %d\n", cpuid.SteppingId)
 	fmt.Printf("ProcessorType:  %d\n", cpuid.ProcessorType)
 	fmt.Printf("DisplayFamily:  %d\n", cpuid.DisplayFamily)
@@ -19,11 +20,12 @@ func main() {
 	fmt.Printf("MaxLogocalCPUId:%d\n", cpuid.MaxLogocalCPUId)
 	fmt.Printf("InitialAPICId:  %d\n", cpuid.InitialAPICId)
 	fmt.Printf("Smallest monitor-line size in bytes:  %d\n", cpuid.MonLineSizeMin)
-	fmt.Printf("Largest monitor-line size in bytes:  %d\n", cpuid.MonLineSizeMax)
+	fmt.Printf("Largest monitor-line size in bytes:   %d\n", cpuid.MonLineSizeMax)
 	fmt.Printf("Monitor Interrupt break-event is supported:  %v\n", cpuid.MonitorIBE)
-	fmt.Printf("MONITOR/MWAIT extensions are supported:  %v\n", cpuid.MonitorEMX)
-	fmt.Printf("AVX state %v\n", cpuid.EnabledAVX)
-	fmt.Printf("AVX-512 state %v\n", cpuid.EnabledAVX512)
+	fmt.Printf("MONITOR/MWAIT extensions are supported:      %v\n", cpuid.MonitorEMX)
+	fmt.Printf("AVX state:     %v\n", cpuid.EnabledAVX)
+	fmt.Printf("AVX-512 state: %v\n", cpuid.EnabledAVX512)
+	fmt.Printf("Interrupt thresholds in digital thermal sensor: %v\n", cpuid.ThermalSensorInterruptThresholds)
 
 	fmt.Printf("Features: ")
 	for i := uint64(0); i < 64; i++ {
@@ -45,6 +47,16 @@ func main() {
 	for i := uint64(0); i < 64; i++ {
 		if cpuid.HasExtraFeature(1 << i) {
 			fmt.Printf("%s ", cpuid.ExtraFeatureNames[1<<i])
+		}
+	}
+	fmt.Printf("\n")
+
+	fmt.Printf("ThermalAndPowerFeatures: ")
+	for i := uint32(0); i < 64; i++ {
+		if cpuid.HasThermalAndPowerFeature(1 << i) {
+			if name, found := cpuid.ThermalAndPowerFeatureNames[1<<i]; found {
+				fmt.Printf("%s ", name)
+			}
 		}
 	}
 	fmt.Printf("\n")
