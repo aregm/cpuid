@@ -9,7 +9,7 @@
 
 package cpuid
 
-// VendorIndentificationString like "GenuineIntel" or "AuthenticAMD"
+// VendorIdentificationString like "GenuineIntel" or "AuthenticAMD"
 var VendorIdentificatorString string
 
 // ProcessorBrandString like "Intel(R) Core(TM) i7-4770HQ CPU @ 2.20GHz"
