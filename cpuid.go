@@ -2,14 +2,13 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package cpuid provides access to inforamtion available with
-// CPUID instruction
+// Package cpuid provides access to the information available
+// through the CPUID instruction.
 // All information is gathered during package initialization phase
-// so package's public interface doesn't call CPUID intstruction
-
+// so package's public interface doesn't call CPUID instruction.
 package cpuid
 
-// VendorIndentificationString like "GenuineIntel" or "AuthenticAMD"
+// VendorIdentificationString like "GenuineIntel" or "AuthenticAMD"
 var VendorIdentificatorString string
 
 // ProcessorBrandString like "Intel(R) Core(TM) i7-4770HQ CPU @ 2.20GHz"
