@@ -3,10 +3,6 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package cpuid provides access to the information available
-// through the CPUID instruction.
-// All information is gathered during package initialization phase
-// so package's public interface doesn't call CPUID instruction.
 package cpuid
 
 func cpuid_low(arg1, arg2 uint32) (eax, ebx, ecx, edx uint32) // implemented in cpuidlow_amd64.s
