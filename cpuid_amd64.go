@@ -92,7 +92,7 @@ func leaf1() {
 	// Parse EBX
 	brandIndex = ebx & 0xFF
 	CacheLineSize = ((ebx >> 8) & 0xFF) << 3
-	MaxLogocalCPUId = (ebx >> 16) & 0xFF
+	MaxLogicalCPUId = (ebx >> 16) & 0xFF
 	InitialAPICId = (ebx >> 24)
 
 	// Parse ECX & EDX not needed. Ask through HasFeature function

@@ -17,7 +17,7 @@ func main() {
 	fmt.Printf("DisplayFamily:  %d\n", cpuid.DisplayFamily)
 	fmt.Printf("DisplayModel:   %d\n", cpuid.DisplayModel)
 	fmt.Printf("CacheLineSize:  %d\n", cpuid.CacheLineSize)
-	fmt.Printf("MaxLogocalCPUId:%d\n", cpuid.MaxLogocalCPUId)
+	fmt.Printf("MaxLogicalCPUId:%d\n", cpuid.MaxLogicalCPUId)
 	fmt.Printf("InitialAPICId:  %d\n", cpuid.InitialAPICId)
 	fmt.Printf("Smallest monitor-line size in bytes:  %d\n", cpuid.MonLineSizeMin)
 	fmt.Printf("Largest monitor-line size in bytes:   %d\n", cpuid.MonLineSizeMax)
