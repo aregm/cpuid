@@ -26,6 +26,7 @@ func detectFeatures() {
 	leaf0x80000004()
 	leaf0x80000005()
 	leaf0x80000006()
+	leaf0x8000001f()
 
 	if HasFeature(OSXSAVE) {
 		eax, _ := xgetbv_low(0)
@@ -37,6 +38,14 @@ func detectFeatures() {
 		}
 	}
 }
+
+// AMD Memory encryption capabilities
+const (
+	AMD_SME = iota
+	AMD_SEV
+	AMD_PAGE_FLUSH_MSR
+	AMD_SEV_ES
+)
 
 var leaf02Names = [...]string{
 	"NULL",
@@ -456,6 +465,36 @@ func leaf0x80000006() {
 				-1,
 				int(L3LinesPerTag),
 			})
+	}
+}
+
+// AMD Encrypted Memory Capabilities
+// Details found in AMD64 Architecture Programmer’s Manual Volume 3, section E.4.17
+func leaf0x8000001f() {
+
+	if maxExtendedInputValue < 0x8000001f {
+		return
+	}
+
+	if brandId != AMD {
+		return
+	}
+
+	eax, ebx, ecx, edx := cpuid_low(0x8000001f, 0)
+
+	// Parse EAX
+	amdMemEncryptFeatureFlags = eax
+
+	if HasAMDMemEncryptFeature(AMD_SME) || HasAMDMemEncryptFeature(AMD_SEV) {
+		// Parse EBX
+		AMDMemEncrypt.CBitPosition = ebx & 0x3F
+		AMDMemEncrypt.PhysAddrReduction = (ebx >> 6) & 0x3F
+
+		// Parse ECX
+		AMDMemEncrypt.NumEncryptedGuests = ecx
+
+		// Parse EDX
+		AMDMemEncrypt.MinSevNoEsAsid = edx
 	}
 }
 
