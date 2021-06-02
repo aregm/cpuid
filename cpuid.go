@@ -76,6 +76,15 @@ type CacheDescriptor struct {
 	Partioning int    // partitioning
 }
 
+type AMDMemoryEncryptionCapabilities struct {
+	PhysAddrReduction  uint32
+	CBitPosition       uint32
+	NumEncryptedGuests uint32
+	MinSevNoEsAsid     uint32
+}
+
+var AMDMemEncrypt AMDMemoryEncryptionCapabilities
+
 // ThermalSensorInterruptThresholds is the number of interrupt thresholds in digital thermal sensor.
 var ThermalSensorInterruptThresholds uint32
 
@@ -92,6 +101,11 @@ func HasExtendedFeature(feature uint64) bool {
 // HasExtraFeature to check if features from ExtraFeatureNames map are available on the current processor
 func HasExtraFeature(feature uint64) bool {
 	return (extraFeatureFlags & feature) != 0
+}
+
+// HasAMDMemEncryptFeature to check if features from AmdMemEncryptFeatureNames map are available on the current processor
+func HasAMDMemEncryptFeature(feature uint32) bool {
+	return (amdMemEncryptFeatureFlags & feature) != 0
 }
 
 // HasThermalAndPowerFeature to check if features from ThermalAndPowerFeatureNames map are available on the current processor
@@ -182,29 +196,29 @@ var ThermalAndPowerFeatureNames = map[uint32]string{ // From leaf06
 }
 
 var ExtendedFeatureNames = map[uint64]string{ // From leaf07
-	FSGSBASE:        "FSGSBASE",
-	IA32_TSC_ADJUST: "IA32_TSC_ADJUST",
-	BMI1:            "BMI1",
-	HLE:             "HLE",
-	AVX2:            "AVX2",
-	SMEP:            "SMEP",
-	BMI2:            "BMI2",
-	ERMS:            "ERMS",
-	INVPCID:         "INVPCID",
-	RTM:             "RTM",
-	PQM:             "PQM",
-	DFPUCDS:         "DFPUCDS",
-	MPX:             "MPX",
-	PQE:             "PQE",
-	AVX512F:         "AVX512F",
-	AVX512DQ:        "AVX512DQ",
-	RDSEED:          "RDSEED",
-	ADX:             "ADX",
-	SMAP:            "SMAP",
-	AVX512IFMA:      "AVX512IFMA",
-	PCOMMIT:         "PCOMMIT",
-	CLFLUSHOPT:      "CLFLUSHOPT",
-	CLWB:            "CLWB",
+	FSGSBASE:              "FSGSBASE",
+	IA32_TSC_ADJUST:       "IA32_TSC_ADJUST",
+	BMI1:                  "BMI1",
+	HLE:                   "HLE",
+	AVX2:                  "AVX2",
+	SMEP:                  "SMEP",
+	BMI2:                  "BMI2",
+	ERMS:                  "ERMS",
+	INVPCID:               "INVPCID",
+	RTM:                   "RTM",
+	PQM:                   "PQM",
+	DFPUCDS:               "DFPUCDS",
+	MPX:                   "MPX",
+	PQE:                   "PQE",
+	AVX512F:               "AVX512F",
+	AVX512DQ:              "AVX512DQ",
+	RDSEED:                "RDSEED",
+	ADX:                   "ADX",
+	SMAP:                  "SMAP",
+	AVX512IFMA:            "AVX512IFMA",
+	PCOMMIT:               "PCOMMIT",
+	CLFLUSHOPT:            "CLFLUSHOPT",
+	CLWB:                  "CLWB",
 	INTEL_PROCESSOR_TRACE: "INTEL_PROCESSOR_TRACE",
 	AVX512PF:              "AVX512PF",
 	AVX512ER:              "AVX512ER",
@@ -273,6 +287,13 @@ var ExtraFeatureNames = map[uint64]string{ // From leaf 8000 0001
 	_3DNOW:       "3DNOW",
 }
 
+var AmdMemEncryptFeatureNames = map[uint32]string{ // From leaf 8000 001f
+	AMD_SME:            "SME",
+	AMD_SEV:            "SEV",
+	AMD_PAGE_FLUSH_MSR: "PageFlushMSR",
+	AMD_SEV_ES:         "SEV-ES",
+}
+
 var brandStrings = map[string]int{
 	"AMDisbetter!": AMD,
 	"AuthenticAMD": AMD,
@@ -304,6 +325,7 @@ var featureFlags uint64
 var thermalAndPowerFeatureFlags uint32
 var extendedFeatureFlags uint64
 var extraFeatureFlags uint64
+var amdMemEncryptFeatureFlags uint32
 
 const (
 	UKNOWN = iota
