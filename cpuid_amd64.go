@@ -245,7 +245,7 @@ func leaf0x80000005() {
 		return
 	}
 
-	if brandId != AMD {
+	if brandId != AMD && brandId != HYGON {
 		return
 	}
 
@@ -378,7 +378,7 @@ func leaf0x80000006() {
 			})
 	}
 
-	if brandId == AMD {
+	if brandId == AMD || brandId == HYGON {
 
 		L2DTlb2and4MAssoc := uint((eax >> 28) & 0xF)
 		L2DTlb2and4MSize := (eax >> 16) & 0xFFF
@@ -476,7 +476,7 @@ func leaf0x8000001f() {
 		return
 	}
 
-	if brandId != AMD {
+	if brandId != AMD && brandId != HYGON {
 		return
 	}
 
