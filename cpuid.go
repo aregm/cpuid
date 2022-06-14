@@ -563,3 +563,11 @@ const (
 	STLB
 	PREFETCH
 )
+
+// AMD Memory encryption capabilities
+const (
+	AMD_SME = iota
+	AMD_SEV
+	AMD_PAGE_FLUSH_MSR
+	AMD_SEV_ES
+)
