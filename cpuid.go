@@ -314,6 +314,7 @@ var brandStrings = map[string]int{
 	"Microsoft Hv": HYPERV,
 	"VMwareVMware": VMWARE,
 	"XenVMMXenVMM": XEN,
+	"HygonGenuine": HYGON,
 }
 
 var maxInputValue uint32
@@ -346,6 +347,7 @@ const (
 	HYPERV
 	VMWARE
 	XEN
+	HYGON
 )
 
 const (
