@@ -228,6 +228,7 @@ var ExtendedFeatureNames = map[uint64]string{ // From leaf07
 	AVX512VL:              "AVX512VL",
 	PREFETCHWT1:           "PREFETCHWT1",
 	AVX512VBMI:            "AVX512VBMI",
+	AVX512VBMI2:           "AVX512VBMI2",
 }
 
 var ExtraFeatureNames = map[uint64]string{ // From leaf 8000 0001
@@ -450,6 +451,11 @@ const (
 	// ECX's const from there
 	PREFETCHWT1
 	AVX512VBMI
+	_
+	_
+	_
+	_
+	AVX512VBMI2
 )
 
 const (
