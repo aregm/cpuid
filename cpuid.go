@@ -113,12 +113,6 @@ func HasThermalAndPowerFeature(feature uint32) bool {
 	return (thermalAndPowerFeatureFlags & feature) != 0
 }
 
-// CanEnableCryptoMB to check if CryptoMB can be enabled on the current processor
-func CanEnableCryptoMB() bool {
-	// reference: https://github.com/intel/ipp-crypto/blob/46944bd18e6dbad491ef9b9a3404303ef7680c09/sources/ippcp/crypto_mb/src/common/cpu_features.c#L227
-	return HasExtendedFeature(BMI2) && HasExtendedFeature(AVX512F) && HasExtendedFeature(AVX512DQ) && HasExtendedFeature(AVX512BW) && HasExtendedFeature(AVX512IFMA) && HasExtendedFeature(AVX512VBMI2) && EnabledAVX512
-}
-
 var FeatureNames = map[uint64]string{
 	SSE3:         "SSE3",
 	PCLMULQDQ:    "PCLMULQDQ",

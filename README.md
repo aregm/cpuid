@@ -186,6 +186,7 @@ if EnabledAVX && HasFeature(AVX) {
   > **AVX512VL**                AVX-512 Vector Length Extensions<br/>
   > **PREFETCHWT1**             PREFETCHWT1 instruction<br/>
   > **AVX512VBMI**              AVX-512 Vector Bit Manipulation Instructions<br/>
+  > **AVX512VBMI2**             AVX-512 Vector Bit Manipulation Instructions, Version 2<br/>
 
 * **func HasExtraFeature(feature uint64) bool**
   > **LAHF_LM**           LahfSahf LAHF and SAHF instruction support in 64-bit mod<br/>
